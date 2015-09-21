@@ -1,0 +1,9 @@
+{
+  "name": "test-lad",
+  "version": "0.0.1",
+  "description" : "Zubair is a feggut.",
+  "main" : "Main.js",
+  "dependencies" : {
+    "express": "~3.4.7"
+  }
+}
