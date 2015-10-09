@@ -9,16 +9,8 @@ module.exports = function (application) {
                     
     application.post ('/api/trypost',
         function (request, response) {
-            
-            /*
-            response.on("data", function(){})
-            
-            response.on("end", function() {
-                console.log("Status Code: " + response.statusCode);
-            });
-            */
             var message = request.body.message;
-            console.log(message);
-            response.send(message);
+            console.log('Success');
+            response.send({ message: message });
         });
 }
