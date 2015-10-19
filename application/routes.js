@@ -52,7 +52,7 @@ module.exports = function (application) {
     application.post ('/api/geyser/new-time', 
         function(request, response) {
             var time = request.body.time;
-            var user = request.body.user;
+            var user = request.body.username;
             var newTime = FirebaseRef.child( user + '/geyser/history' ).push();
             newTime.set({
                 time: time
