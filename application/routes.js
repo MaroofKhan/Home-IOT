@@ -57,6 +57,6 @@ module.exports = function (application) {
             newTime.set({
                 time: time
             });
-            response.json({ Status: "Success" });
+            response.json({ Status: "Success", TimeInserted: time});
         });
 }
