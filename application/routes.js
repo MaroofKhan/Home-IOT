@@ -35,28 +35,48 @@ module.exports = function (application) {
             })
         });
         
-    application.post ('/api/login', 
+    application.post ('/api/login',
         function(request, response) {
             var username = request.body.username;
             var password = request.body.password;
             FirebaseRef.child(username).on("value", function(snapshot) {
                 if (password == snapshot.val().password) {
                     response.json({Status: 'Success'});
-                } 
+                }
                 else {
-                    response.json({Status: 'Failed'});   
-                }    
+                    response.json({Status: 'Failed'});
+                }
             }); 
         });
         
-    application.post ('/api/geyser/new-time', 
+    application.post ('/api/geyser/history', 
         function(request, response) {
             var time = request.body.time;
-            var user = request.body.username;
-            var newTime = FirebaseRef.child( user + '/geyser/history' ).push();
+            var username = request.body.username;
+            var newTime = FirebaseRef.child( username + '/geyser/history' ).push();
             newTime.set({
                 time: time
             });
             response.json({ Status: "Success", TimeInserted: time});
+        });
+        
+     application.get ('/api/lock/keys', 
+        function(request, response) {
+            var username = request.body.username;
+            FirebaseRef.child(username + '/lock/keys').on("value", function(snapshot) {
+                response.json(snapshot.val()); 
+            });
+        });
+        
+     application.post ('/api/lock/history',
+        function(request, response) {
+            var username = request.body.username;
+            var time = request.body.time;
+            var person = request.body.person;
+            var newHistory = FirebaseRef.child(username + '/lock/history').push();
+            newHistory.set({
+                person: person,
+                time: time
+            })
         });
 }
