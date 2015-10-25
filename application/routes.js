@@ -60,9 +60,9 @@ module.exports = function (application) {
             response.json({ Status: "Success", TimeInserted: time});
         });
         
-     application.get ('/api/lock/keys', 
+     application.get ('/api/lock/keys/:username', 
         function(request, response) {
-            var username = request.body.username;
+            var username = request.params.username;
             FirebaseRef.child(username + '/lock/keys').on("value", function(snapshot) {
                 response.json(snapshot.val()); 
             });
