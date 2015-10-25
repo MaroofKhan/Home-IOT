@@ -70,7 +70,7 @@ module.exports = function (application) {
              var veryhot = request.body.veryhot;
              var warm = request.body.warm;
              
-             var defRef = FirebaseRef.child( username + 'api/geyser/definitions' );
+             var defRef = FirebaseRef.child( username + '/geyser/definitions' );
              defRef.set({ hot: hot });
              defRef.set({ normal: normal });
              defRef.set({ veryhot: veryhot });
