@@ -71,11 +71,12 @@ module.exports = function (application) {
              var warm = request.body.warm;
              
              var defRef = FirebaseRef.child( username + '/geyser/definitions' );
-             defRef.set({ hot: hot });
-             defRef.set({ normal: normal });
-             defRef.set({ veryhot: veryhot });
-             defRef.set({ warm: warm });
-             defRef.set({ custom: custom });
+             defRef.set({ 
+                 hot: hot, 
+                 normal: normal, 
+                 veryhot: veryhot, 
+                 warm: warm, 
+                 custom: custom });
              
              response.json({ status: "Success"});
         });
