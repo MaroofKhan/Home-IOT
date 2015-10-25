@@ -60,6 +60,26 @@ module.exports = function (application) {
             response.json({ Status: "Success", TimeInserted: time});
         });
         
+     application.post('/api/geyser/definitions',
+        function(request, response) {
+             var username = request.body.username;
+             
+             var custom = request.body.custom;
+             var hot = request.body.hot;
+             var normal = request.body.normal;
+             var veryhot = request.body.veryhot;
+             var warm = request.body.warm;
+             
+             var defRef = FirebaseRef.child( username + 'api/geyser/definitions' );
+             defRef.set({ hot: hot });
+             defRef.set({ normal: normal });
+             defRef.set({ veryhot: veryhot });
+             defRef.set({ warm: warm });
+             defRef.set({ custom: custom });
+             
+             response.json({ status: "Success"});
+        });
+        
      application.get ('/api/lock/guests/:username', 
         function(request, response) {
             var username = request.params.username;
