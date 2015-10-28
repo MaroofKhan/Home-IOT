@@ -21,6 +21,7 @@ module.exports = function (application) {
             var recalled = false;
             var username = request.body.username;
             var password = request.body.password;
+            var email = request.body.email;
             FirebaseRef.on("child_added", function(snapshot) {
                 if (snapshot.key() == username && !recalled) {
                     response.json({Status: 'Username taken'});
@@ -31,6 +32,7 @@ module.exports = function (application) {
             });
             recalled = true;
             FirebaseRef.child(username).set({
+                email: email,
                 password: password
             })
         });
