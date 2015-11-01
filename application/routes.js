@@ -102,4 +102,17 @@ module.exports = function (application) {
                 time: time
             })
         });
+        
+     application.get ('/api/users', 
+        function(request, response) {
+            var users = [];
+            FirebaseRef.on("value", function(snapshot) {
+                snapshot.forEach(function(childSnapshot) {
+                    var key = childSnapshot.key();
+                    // key === "fred"
+                    users.push(key);
+                });
+                response.json({users: users});
+            });
+        });
 }
