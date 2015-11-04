@@ -2,6 +2,9 @@ var Firebase = require('firebase');
 var FirebaseRef = new Firebase('https://homeiot.firebaseio.com/');
 
 module.exports = function (application) {
+    
+    // TEST ROUTES
+    
     application.get ('/api', 
         function (request, response) {
             response.json({
@@ -12,10 +15,10 @@ module.exports = function (application) {
     application.post ('/api/trypost',
         function (request, response) {
             var message = request.body.message;
-            console.log('Success');
             response.send({ message: message });
         });
    
+    // USER ROUTES
     application.post ('/api/signup',
         function(request, response) {
             var recalled = false;
@@ -50,7 +53,20 @@ module.exports = function (application) {
                 }
             }); 
         });
+             
+     application.get ('/api/users', 
+        function(request, response) {
+            var users = [];
+            FirebaseRef.on("value", function(snapshot) {
+                snapshot.forEach(function(childSnapshot) {
+                    var key = childSnapshot.key();
+                    users.push(key);
+                });
+                response.json({users: users});
+            });
+        });
         
+    // GEYSER ROUTES
     application.post ('/api/geyser/history', 
         function(request, response) {
             var time = request.body.time;
@@ -82,8 +98,9 @@ module.exports = function (application) {
              
              response.json({ status: "Success"});
         });
-        
-     application.get ('/api/lock/guests/:username', 
+     
+     // LOCK ROUTES
+     application.get ('/api/:username/lock/guests/', 
         function(request, response) {
             var username = request.params.username;
             FirebaseRef.child(username + '/lock/guests').on("value", function(snapshot) {
@@ -102,17 +119,83 @@ module.exports = function (application) {
                 time: time
             })
         });
+
         
-     application.get ('/api/users', 
+     application.post( '/api/:username/lock/guests', 
         function(request, response) {
-            var users = [];
-            FirebaseRef.on("value", function(snapshot) {
-                snapshot.forEach(function(childSnapshot) {
-                    var key = childSnapshot.key();
-                    // key === "fred"
-                    users.push(key);
-                });
-                response.json({users: users});
+            var username = request.params.username;
+            var validFrom = request.body.validFrom;
+            var guest = request.body.guest;
+            var expires = request.body.expires;
+            
+            var newLock = FirebaseRef.child(username + '/lock/guests').push();
+            newLock.set({
+                guest: guest,
+                validFrom: validFrom,
+                expires: expires,
+                created: date()
             });
+            
+            var newAvailableKey = FirebaseRef.child(guest + '/lock/available-keys/' + newLock.key());
+            newAvailableKey.set({
+                sender: username
+            });
+            
+            response.json({ key: newLock.key() });
         });
+        
+     application.get( '/api/:username/lock/guests/latest',
+        function(request, response) {
+             var username = request.params.username;
+             var latest = { };
+             FirebaseRef.child(username + '/lock/guests').on( "value", 
+                function(snapshot) {
+                    snapshot.forEach(function(child) {
+                        if ( !latest.created || parseInt(latest.created) < parseInt(child.val().created) ) {
+                            latest = child.val();
+                            latest.key = child.key();
+                        }
+                    });
+                    response.json({ lastinserted: latest });
+                });
+        });
+        
+     application.delete( '/api/:username/lock/guests', 
+        function(request, response) {
+            var username = request.params.username;
+            var key = request.body.key;
+            var called = false;
+            var keyRef = FirebaseRef.child(username + '/lock/guests/' + key);
+            
+            keyRef.on("value", 
+                function(snapshot) {
+                    if (!called) {
+                        called = true;
+                        if (snapshot.exists()) {
+                            var guest = snapshot.val().guest;
+                            var guestKeyRef = FirebaseRef.child(guest + '/lock/available-keys/' + key);
+                            // Remove key from guest's account
+                            guestKeyRef.remove();
+                            // Remove key from host's account
+                            keyRef.remove();
+                            response.json({ Status: "Success" });
+                        }
+                        else {
+                            response.json({ Status: "Failed" });
+                        }
+                    }
+                });
+        });
+}
+
+function date() {
+    var now = new Date();
+    var builder = "";
+    builder += now.getFullYear();
+    builder += now.getMonth() < 10 ? '0' + now.getMonth() + 1 : now.getMonth() + 1;
+    builder += now.getDate() < 10 ? '0' + now.getDate() : now.getDate();
+    builder += now.getHours() < 10 ? '0' + now.getHours() : now.getHours();
+    builder += now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
+    builder += now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds();
+    return builder;
 }
