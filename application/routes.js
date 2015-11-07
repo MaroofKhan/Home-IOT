@@ -186,16 +186,30 @@ module.exports = function (application) {
                     }
                 });
         });
+        
+     application.get( '/api/:username/lock/available-keys', 
+        function(request, response) {
+            var username = request.params.username;
+            
+            var keys = [ ];
+            
+            FirebaseRef.child(username + '/lock/available-keys').on('value', 
+                function(snapshot) {
+                    snapshot.forEach(function(child) {
+                        var key = { };
+                        key.key = child.key();
+                        key.sender = child.val().sender;
+                        console.log(key.sender + '/lock/guests/' + key.key);
+                        FirebaseRef.child(key.sender + '/lock/guests/' + key.key).on('value', 
+                            function (snap) {
+                                key.expires = snap.val().expires;
+                                key.validFrom = snap.val().validFrom;
+                                keys.push(key);
+                            });
+                    });    
+                    response.json({ keys: keys });
+                });
+        }); 
 }
 
-function date() {
-    var now = new Date();
-    var builder = "";
-    builder += now.getFullYear();
-    builder += now.getMonth() < 10 ? '0' + now.getMonth() + 1 : now.getMonth() + 1;
-    builder += now.getDate() < 10 ? '0' + now.getDate() : now.getDate();
-    builder += now.getHours() < 10 ? '0' + now.getHours() : now.getHours();
-    builder += now.getMinutes() < 10 ? '0' + now.getMinutes() : now.getMinutes();
-    builder += now.getSeconds() < 10 ? '0' + now.getSeconds() : now.getSeconds();
-    return builder;
-}
+
