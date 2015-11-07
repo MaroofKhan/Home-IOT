@@ -1,3 +1,4 @@
+var date = require('./date');
 var Firebase = require('firebase');
 var FirebaseRef = new Firebase('https://homeiot.firebaseio.com/');
 
@@ -133,7 +134,7 @@ module.exports = function (application) {
                 guest: guest,
                 validFrom: validFrom,
                 expires: expires,
-                created: date()
+                created: date.date()
             });
             
             var newAvailableKey = FirebaseRef.child(guest + '/lock/available-keys/' + newLock.key());
