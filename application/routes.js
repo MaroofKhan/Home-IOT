@@ -196,6 +196,7 @@ module.exports = function (application) {
             
             FirebaseRef.child(username + '/lock/available-keys').on('value', 
                 function(snapshot) {
+                    var count = 0;
                     snapshot.forEach(function(child) {
                         var key = { };
                         key.key = child.key();
@@ -206,9 +207,12 @@ module.exports = function (application) {
                                 key.expires = snap.val().expires;
                                 key.validFrom = snap.val().validFrom;
                                 keys.push(key);
+                                count++;
+                                if (count == snapshot.numChildren()) {
+                                    response.json({ keys: keys });
+                                }
                             });
                     });    
-                    response.json({ keys: keys });
                 });
         }); 
 }
