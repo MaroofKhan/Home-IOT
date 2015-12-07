@@ -4,8 +4,7 @@ var FirebaseRef = new Firebase('https://homeiot.firebaseio.com/');
 
 module.exports = function (application) {
     
-    // TEST ROUTES
-    
+    // TEST ROUTES 
     application.get ('/api', 
         function (request, response) {
             response.json({
@@ -68,6 +67,26 @@ module.exports = function (application) {
         });
         
     // GEYSER ROUTES
+    application.get ('/api/:username/geyser/regions',
+        function(request, response) {
+            var username = request.params.username;
+            FirebaseRef.child( username + '/geyser/regions').on("value", 
+                function(regions) {
+                    response.json({ regions: regions.val()});
+                });
+    });
+    
+    application.post ('/api/geyser/schedule', 
+        function(request, response) {
+            var time = request.body.time;
+            var username = request.body.username;
+            var newTime = FirebaseRef.child( username + '/geyser/schedule' ).push();
+            newTime.set({
+                time: time
+            });
+            response.json({ Status: "Success", TimeInserted: time});
+    });
+    
     application.post ('/api/geyser/history', 
         function(request, response) {
             var time = request.body.time;
@@ -214,7 +233,7 @@ module.exports = function (application) {
                             });
                     });    
                 });
-        }); 
+        });
 }
 
 

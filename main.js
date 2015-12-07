@@ -8,5 +8,6 @@ app.configure(function() {
 })
 
 require('./application/routes.js')(app);
+require('./application/ml.js');
 app.listen(port);
 console.log('On port# ' + port);
