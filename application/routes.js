@@ -118,6 +118,14 @@ module.exports = function (application) {
              
              response.json({ status: "Success"});
         });
+        
+     application.get('/api/:username/geyser/definitions',
+        function(request, response) {
+           var username = request.params.username;
+           FirebaseRef.child(username + '/geyser/definitions').on("value", function(snapshot) {
+                response.json(snapshot.val());    
+           }); 
+        });
      
      // LOCK ROUTES
      application.get ('/api/:username/lock/guests/', 
